@@ -1,15 +1,14 @@
 from django.contrib.auth import get_user_model
-from rest_framework.serializers import ModelSerializer, Serializer
+from rest_framework.serializers import ModelSerializer, Serializer, ValidationError
 from rest_framework import serializers
-from .models import Tag, Ingridient
+from .models import Tag, Ingridient, User
 from django.contrib.auth.hashers import make_password
 from drf_base64.fields import Base64ImageField
+from djoser.serializers import UserCreateSerializer as DjoserCreateUserSerializer
 
-User = get_user_model()
 
-
-class UserCreateSerializer(ModelSerializer):
-    email = serializers.CharField(max_length=254, required=True)
+class UserCreateSerializer(DjoserCreateUserSerializer):
+    email = serializers.EmailField(max_length=254, required=True)
     username = serializers.CharField(max_length=150, required=True)
     first_name = serializers.CharField(max_length=150, required=True)
     last_name = serializers.CharField(max_length=150, required=True)
@@ -19,25 +18,35 @@ class UserCreateSerializer(ModelSerializer):
                                      style={'input_type': 'password'}
                                      )
 
+    def validate_username(self, value):
+        import re
+        if not re.fullmatch(r'^[\w.@+-]+\Z', value):
+            raise serializers.ValidationError('Нельзя использовать такие символы')
+        return value
+
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password')
-
-    def create(self, validated_data):
-        validated_data['password'] = make_password(validated_data['password'])
-        user = User.objects.create(**validated_data)
-        return user
+        fields = ('username', 'email', 'first_name', 'last_name', 'password',
+                  'id',)
 
 
 class UserListSerializer(ModelSerializer):
-    email = serializers.CharField(max_length=254, required=True)
-    username = serializers.CharField(max_length=150, required=True)
-    first_name = serializers.CharField(max_length=150, required=True)
-    last_name = serializers.CharField(max_length=150, required=True)
+    is_subscribed = serializers.SerializerMethodField()
+    avatar = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name',)
+        fields = ('username', 'email', 'first_name', 'last_name', 'id',
+                  'is_subscribed', 'avatar')
+
+    def get_is_subscribed(self, obj):
+        return False
+
+    def get_avatar(self, obj):
+        request = self.context.get('request')
+        if obj.avatar and request:
+            return request.build_absolute_uri(obj.avatar.url)
+        return None
 
 
 class ChangeUserPasswordSerializer(Serializer):
@@ -53,12 +62,12 @@ class ChangeUserPasswordSerializer(Serializer):
     def validate_new_password(self, value):
         user = self.context['request'].user
         if user.check_password(value):
-            raise serializers.ValidationError(detail='Новый пароль != текущему паролю')
+            raise serializers.ValidationError(detail='Новый пароль не должен совпадать с  текущем паролекм')
         return value
 
-    def update(self, instance, validated_data):
+    def save(self, **kwargs):
         user = self.context['request'].user
-        user.set_password(validated_data['new_password'])
+        user.set_password(self.validated_data['new_password'])
         user.save()
         return user
 
@@ -75,7 +84,7 @@ class IngridientSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit')
 
 
-class AvatarSerializer(Serializer):
+class AvatarSerializer(ModelSerializer):
     avatar = Base64ImageField()
 
     class Meta:

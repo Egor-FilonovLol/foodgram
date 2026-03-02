@@ -8,6 +8,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+
+AUTH_USER_MODEL = 'foodgramm.User'
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -18,7 +21,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'foodgramm',
-    
+    'rest_framework.authtoken',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -73,10 +77,27 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
+
+
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'TOKEN_MODEL': 'rest_framework.authtoken.models.Token',
+    'SERIALIZERS': {
+        'user_create': 'foodgramm.serializers.UserCreateSerializer',
+        'current_user': 'foodgramm.serializers.UserListSerializer',
+    },
+
+}
+
 
 LANGUAGE_CODE = 'en-us'
 
