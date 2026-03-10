@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
 from rest_framework.serializers import ModelSerializer, Serializer, ValidationError
 from rest_framework import serializers
-from .models import Tag, Ingridient, User
+from .models import Tag, Ingredient, User, Recipe, IngredientInRecipe, Follow, Favorite, ShoppingCart
 from django.contrib.auth.hashers import make_password
 from drf_base64.fields import Base64ImageField
 from djoser.serializers import UserCreateSerializer as DjoserCreateUserSerializer
+from django.shortcuts import get_object_or_404
 
 
 class UserCreateSerializer(DjoserCreateUserSerializer):
@@ -40,7 +41,10 @@ class UserListSerializer(ModelSerializer):
                   'is_subscribed', 'avatar')
 
     def get_is_subscribed(self, obj):
-        return False
+        request = self.context.get('request')
+        if request.user.is_anonymous:
+            return False
+        return Follow.objects.filter(user=request.user, author=obj).exists()
 
     def get_avatar(self, obj):
         request = self.context.get('request')
@@ -78,9 +82,9 @@ class TagSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'slug')
 
 
-class IngridientSerializer(serializers.ModelSerializer):
+class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Ingridient
+        model = Ingredient
         fields = ('id', 'name', 'measurement_unit')
 
 
@@ -90,3 +94,119 @@ class AvatarSerializer(ModelSerializer):
     class Meta:
         model = User
         fields = ('avatar',)
+
+
+class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
+
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
+
+    class Meta:
+        model = IngredientInRecipe
+        fields = ('id', 'name', 'measurement_unit', 'amount')
+
+
+class IngredientInRecipeCreateSerializer(Serializer):
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField(min_value=1)
+
+
+class RecipeReadSerializer(ModelSerializer):
+    tags = TagSerializer(read_only=True, many=True)
+    author = UserListSerializer(read_only=True)
+    ingredients = IngredientInRecipeReadSerializer(source='ingredient_list',
+                                                   many=True,
+                                                   read_only=True)
+    image = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'tags', 'author', 'ingredients', 'image',
+                  'is_favorited', 'is_in_shopping_cart',
+                  'cooking_time', 'text')
+
+    def get_is_favorited(self, obj):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        return Favorite.objects.filter(user=request.user, recipe=obj).exists()
+
+    def get_is_in_shopping_cart(self, obj):
+        request = self.context.get('request')
+        if not request or request.user.is_anonymous:
+            return False
+        return ShoppingCart.objects.filter(user=request.user, recipe=obj).exists()
+
+
+class RecipeCreateSerializer(ModelSerializer):
+    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
+    image = Base64ImageField()
+    ingredients = IngredientInRecipeCreateSerializer(many=True)
+    name = serializers.CharField(max_length=256)
+    text = serializers.CharField()
+    cooking_time = serializers.IntegerField(min_value=1)
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'tags', 'ingredients', 'image',
+                  'cooking_time', 'text')
+
+    def validate_ingredients(self, data):
+        if not data:
+            raise serializers.ValidationError('Не может быть пустым список!')
+        ingredient_id = [item['id'].id for item in data]
+        if len(ingredient_id) != len(set(ingredient_id)):
+            raise serializers.ValidationError('Ингредиенты не могут повторяться..')
+        return data
+
+    def validate_tags(self, data):
+        if not data:
+            raise serializers.ValidationError('Ошибка, в связи отсутствием тегов')
+        if len(data) != len(set(data)):
+            raise serializers.ValidationError('ошибка, не может быть разное колво')
+
+    def to_representation(self, instance):
+        serializer = RecipeReadSerializer(
+            instance, context={"request": self.context.get("request")}
+        )
+
+        return serializer.data
+
+    def create(self, validated_data):
+        author = self.context.get('request').user
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
+        recipe = Recipe.objects.create(author=author, **validated_data)
+        recipe.tags.set(tags_data)
+        for ingredient in ingredients_data:
+            IngredientInRecipe.objects.create(
+                recipe=recipe,
+                ingredient=ingredient['id'],
+                amount=ingredient['amount']
+            )
+
+        return recipe
+
+    def update(self, instance, validated_data):
+        tags_data = validated_data.pop('tags')
+        instance.tags.clear()
+        ingredients_data = validated_data.pop('ingredients')
+        instance.ingredient_list.all().delete()
+        instance = super().update(instance, validated_data)
+        instance.tags.set(tags_data)
+        for ingredient in ingredients_data:
+            IngredientInRecipe.objects.create(
+                recipe=instance,
+                ingredient=ingredient['id'],
+                amount=ingredient['amount']
+            )
+
+        return instance
+
+
+# мне нужен вложеннный сериализатор для создания ингридиентов, чтоб я мог использовать его в RecipeCreateSerializer, НУЖНО БУДЕТ ПОДУМАТЬ какие мне необходимы поля, т.к в данный момент реализация неверная

@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from .models import Tag, Ingridient
+from .models import Tag, Ingredient
 from .serializers import TagSerializer, IngridientSerializer, UserCreateSerializer, UserListSerializer,ChangeUserPasswordSerializer
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import filters
@@ -20,7 +20,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class IngridientViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Ingridient.objects.all()
+    queryset = Ingredient.objects.all()
     serializer_class = IngridientSerializer
     filter_backends = [filters.SearchFilter]
     permission_classes = (AllowAny,)
@@ -57,7 +57,6 @@ class UserViewset(viewsets.ModelViewSet):
 
     @action(methods=['put', 'delete'], detail=False, url_path='me/avatar')
     def me_avatar(self, request):
-        # нужно возвращать
         if request.method == 'PUT':
             serializer = AvatarSerializer(instance=request.user,
                                           data=request.data,
@@ -74,8 +73,3 @@ class UserViewset(viewsets.ModelViewSet):
             request.user.avatar = None
             request.user.save()
             return Response(status=status.HTTP_204_NO_CONTENT)
-
-    @action(methods=['POST'], detail=False, url_path='auth/token/logout')
-    def logout(self, request):
-        request.user.auth_token.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
