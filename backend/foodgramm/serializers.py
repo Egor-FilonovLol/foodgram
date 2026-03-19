@@ -22,13 +22,13 @@ class UserCreateSerializer(DjoserCreateUserSerializer):
     def validate_username(self, value):
         import re
         if not re.fullmatch(r'^[\w.@+-]+\Z', value):
-            raise serializers.ValidationError('Нельзя использовать такие символы')
+            raise serializers.ValidationError('Нельзя использовать '
+                                              'такие символы')
         return value
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password',
-                  'id',)
+        fields = ('username', 'email', 'first_name', 'last_name', 'password',)
 
 
 class UserListSerializer(ModelSerializer):
@@ -66,7 +66,8 @@ class ChangeUserPasswordSerializer(Serializer):
     def validate_new_password(self, value):
         user = self.context['request'].user
         if user.check_password(value):
-            raise serializers.ValidationError(detail='Новый пароль не должен совпадать с  текущем паролекм')
+            raise serializers.ValidationError(detail='Новый пароль не должен '
+                                              'совпадать с  текущем паролекм')
         return value
 
     def save(self, **kwargs):
@@ -130,6 +131,12 @@ class RecipeReadSerializer(ModelSerializer):
                   'is_favorited', 'is_in_shopping_cart',
                   'cooking_time', 'text')
 
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+        return None
+
     def get_is_favorited(self, obj):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
@@ -140,11 +147,13 @@ class RecipeReadSerializer(ModelSerializer):
         request = self.context.get('request')
         if not request or request.user.is_anonymous:
             return False
-        return ShoppingCart.objects.filter(user=request.user, recipe=obj).exists()
+        return ShoppingCart.objects.filter(user=request.user,
+                                           recipe=obj).exists()
 
 
 class RecipeCreateSerializer(ModelSerializer):
-    tags = serializers.PrimaryKeyRelatedField(many=True, queryset=Tag.objects.all())
+    tags = serializers.PrimaryKeyRelatedField(many=True,
+                                              queryset=Tag.objects.all())
     image = Base64ImageField()
     ingredients = IngredientInRecipeCreateSerializer(many=True)
     name = serializers.CharField(max_length=256)
@@ -161,14 +170,18 @@ class RecipeCreateSerializer(ModelSerializer):
             raise serializers.ValidationError('Не может быть пустым список!')
         ingredient_id = [item['id'].id for item in data]
         if len(ingredient_id) != len(set(ingredient_id)):
-            raise serializers.ValidationError('Ингредиенты не могут повторяться..')
+            raise serializers.ValidationError('Ингредиенты не могут '
+                                              'повторяться..')
         return data
 
     def validate_tags(self, data):
         if not data:
-            raise serializers.ValidationError('Ошибка, в связи отсутствием тегов')
+            raise serializers.ValidationError('Ошибка, в связи с '
+                                              'отсутствием тегов')
         if len(data) != len(set(data)):
-            raise serializers.ValidationError('ошибка, не может быть разное колво')
+            raise serializers.ValidationError('ошибка, не может быть '
+                                              'разное количество')
+        return data
 
     def to_representation(self, instance):
         serializer = RecipeReadSerializer(
@@ -209,4 +222,17 @@ class RecipeCreateSerializer(ModelSerializer):
         return instance
 
 
-# мне нужен вложеннный сериализатор для создания ингридиентов, чтоб я мог использовать его в RecipeCreateSerializer, НУЖНО БУДЕТ ПОДУМАТЬ какие мне необходимы поля, т.к в данный момент реализация неверная
+class FavoriteSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = Favorite
+        fields = ('id', 'name', 'cooking_time', 'image')
+
+
+class ShoppingCartSerialzier(serializers.ModelSerializer):
+    image = Base64ImageField()
+
+    class Meta:
+        model = ShoppingCart
+        fields = ('id', 'name', 'image', 'cooking_time')

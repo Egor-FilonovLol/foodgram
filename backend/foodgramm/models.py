@@ -39,7 +39,8 @@ class Tag(models.Model):
         verbose_name_plural = 'Теги'
         constraints = (
             models.UniqueConstraint(
-                fields=('name', 'color', 'slug'),
+                fields=('name', 'slug'),
+                name='unique_tag_name'
             )),
 
     def __str__(self):
