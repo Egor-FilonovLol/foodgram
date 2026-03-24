@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .pagination import UserPagination
 from rest_framework.decorators import action
-from .serializers import AvatarSerializer, FavoriteSerializer,ShoppingCartSerialzier
+from .serializers import AvatarSerializer, FavoriteSerializer,ShoppingCartSerializer
 from .permission import RecipePermission
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
@@ -62,6 +62,8 @@ class UserViewset(viewsets.ModelViewSet):
     @action(methods=['put', 'delete'], detail=False, url_path='me/avatar')
     def me_avatar(self, request):
         if request.method == 'PUT':
+            if not request.data.get('avatar'):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             serializer = AvatarSerializer(instance=request.user,
                                           data=request.data,
                                           partial=True)
@@ -106,12 +108,11 @@ class UserViewset(viewsets.ModelViewSet):
             return Response(f'вы не были подписаны на {author}',
                             status=status.HTTP_400_BAD_REQUEST)
 
+
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     pagination_class = UserPagination
     permission_classes = (RecipePermission,)
-    filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('author', 'is_favorited', 'is_in_shopping_cart',)
 
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
@@ -155,7 +156,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             if ShoppingCart.objects.filter(user=request.user, recipe=recipe).exists():
                 return Response({'error': 'уже существует таким'})
             ShoppingCart.objects.create(user=request.user, recipe=recipe)
-            serializer = ShoppingCartSerialzier(recipe)
+            serializer = ShoppingCartSerializer(recipe)
             return Response(serializer.data,
                             status=status.HTTP_201_CREATED) 
         # serializer data
@@ -180,3 +181,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
                 f"{ingredient['total_sum']}\n"
             )
         return HttpResponse(shopping_cart, content_type='text/plain')  # возможно придется добавлять Content-Disposition
+
+    def partial_update(self, request, *args, **kwargs):
+        if 'ingredients' not in request.data:
+            return Response(
+                {'ingredients': ['поле ingredients обязательно']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        if 'tags' not in request.data:
+            return Response({'tags': ['поле теги обязательно']},
+                            status=status.HTTP_400_BAD_REQUEST)
+        return super().partial_update(request, *args, **kwargs)

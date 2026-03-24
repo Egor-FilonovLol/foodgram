@@ -28,7 +28,8 @@ class UserCreateSerializer(DjoserCreateUserSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'password',)
+        fields = ('username', 'email', 'first_name', 'last_name', 'password',
+                  'id',)
 
 
 class UserListSerializer(ModelSerializer):
@@ -90,7 +91,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class AvatarSerializer(ModelSerializer):
-    avatar = Base64ImageField()
+    avatar = Base64ImageField(required=True)
 
     class Meta:
         model = User
@@ -230,7 +231,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'cooking_time', 'image')
 
 
-class ShoppingCartSerialzier(serializers.ModelSerializer):
+class ShoppingCartSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
 
     class Meta:
