@@ -1,8 +1,6 @@
-from django.contrib.auth import get_user_model
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from users.models import User
 from django.core.validators import MinValueValidator
-
 
 class Tag(models.Model):
     name = models.CharField(max_length=32, unique=True,
