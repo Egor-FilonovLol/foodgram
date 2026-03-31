@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework.serializers import ModelSerializer, Serializer, ValidationError
 from rest_framework import serializers
-from .models import Tag, Ingredient, User, Recipe, IngredientInRecipe, Follow, Favorite, ShoppingCart
+from .models import Tag, Ingredient, Recipe, IngredientInRecipe, Follow, Favorite, ShoppingCart
+from users.models import User
 from django.contrib.auth.hashers import make_password
 from drf_base64.fields import Base64ImageField
 from djoser.serializers import UserCreateSerializer as DjoserCreateUserSerializer
@@ -29,7 +30,7 @@ class UserCreateSerializer(DjoserCreateUserSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'password',
-                  'id',)
+                  'id')
 
 
 class UserListSerializer(ModelSerializer):
@@ -114,6 +115,7 @@ class IngredientInRecipeReadSerializer(serializers.ModelSerializer):
 class IngredientInRecipeCreateSerializer(Serializer):
     id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
     amount = serializers.IntegerField(min_value=1)
+
 
 
 class RecipeReadSerializer(ModelSerializer):
@@ -237,3 +239,45 @@ class ShoppingCartSerializer(serializers.ModelSerializer):
     class Meta:
         model = ShoppingCart
         fields = ('id', 'name', 'image', 'cooking_time')
+
+
+
+class RecipeSubscribeSerializer(serializers.ModelSerializer):
+    image = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
+    
+    def get_image(self, obj):
+        request = self.context.get('request')
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+        return None
+
+class SubscribeSerializer(UserListSerializer):
+    recipes = serializers.SerializerMethodField(read_only=True,method_name='get_recipes')
+    recipes_count = serializers.SerializerMethodField(read_only=True, method_name='get_recipes_count')
+
+    class Meta:
+        model = User
+        fields = ('email', 'id', 'username', 'first_name', 'last_name',
+                  'is_subscribed', 'recipes', 'recipes_count', 'avatar')
+
+
+    def get_recipes_count(self, obj):
+        recipes_count = obj.recipes.count()
+        return recipes_count
+    
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return []
+        recipes = obj.recipes.all().order_by('-id')
+        recipes_limit = request.query_params.get('recipes_limit')
+        if recipes_limit:
+            recipes = recipes[:int(recipes_limit)]
+        return RecipeSubscribeSerializer(
+            recipes, 
+            many=True, 
+            context={'request': request}).data

@@ -1,8 +1,15 @@
 from pathlib import Path
+import os
+from django.core.management.utils import get_random_secret_key
+from dotenv import load_dotenv
+
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-0^aq9hoi66@tp$$^px)sk^!1-gn=t%3h)oivrw416zylxy1)nz'
+SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key())
+if not SECRET_KEY:
+    raise ValueError('ошибка с ключиком')
 
 DEBUG = False
 
@@ -20,9 +27,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'django_filters',
-    'foodgramm',
+    'api.apps.ApiConfig',
+    'users.apps.UsersConfig',
     'rest_framework.authtoken',
     'djoser',
+
 ]
 
 MIDDLEWARE = [
@@ -57,8 +66,12 @@ WSGI_APPLICATION = 'myproject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'django'),
+        'USER': os.getenv('POSTGRES_USER', 'django'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', ''),
+        'PORT': os.getenv('DB_PORT', 5432)
     }
 }
 
@@ -108,7 +121,13 @@ USE_I18N = True
 USE_TZ = True
 
 
-STATIC_URL = 'static/'
 
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+STATIC_URL = '/static/'
+STATIC_ROOT = '/app/static/'
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = '/app/media/'
