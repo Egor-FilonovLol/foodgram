@@ -1,12 +1,17 @@
 from django.contrib.auth import get_user_model
-from rest_framework.serializers import ModelSerializer, Serializer, ValidationError
-from rest_framework import serializers
-from .models import Tag, Ingredient, Recipe, IngredientInRecipe, Follow, Favorite, ShoppingCart
-from users.models import User
 from django.contrib.auth.hashers import make_password
-from drf_base64.fields import Base64ImageField
-from djoser.serializers import UserCreateSerializer as DjoserCreateUserSerializer
 from django.shortcuts import get_object_or_404
+from djoser.serializers import \
+    UserCreateSerializer as DjoserCreateUserSerializer
+from drf_base64.fields import Base64ImageField
+from rest_framework import serializers
+from rest_framework.serializers import (ModelSerializer, Serializer,
+                                        ValidationError)
+
+from users.models import User
+
+from .models import (Favorite, Follow, Ingredient, IngredientInRecipe, Recipe,
+                     ShoppingCart, Tag)
 
 
 class UserCreateSerializer(DjoserCreateUserSerializer):

@@ -1,22 +1,26 @@
-from rest_framework import viewsets
-from .models import Tag, Ingredient, Recipe, Favorite, ShoppingCart, IngredientInRecipe, Follow
-from .serializers import TagSerializer, IngredientSerializer, UserCreateSerializer, UserListSerializer,ChangeUserPasswordSerializer, RecipeReadSerializer, RecipeCreateSerializer, SubscribeSerializer, RecipeSubscribeSerializer
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework import filters
 from django.contrib.auth import get_user_model
-from rest_framework.response import Response
-from rest_framework import status
-from .pagination import UserPagination
-from rest_framework.decorators import action
-from .serializers import AvatarSerializer, FavoriteSerializer,ShoppingCartSerializer
-from .permission import RecipePermission
-from django_filters.rest_framework import DjangoFilterBackend
-from django.shortcuts import get_object_or_404
-from django.db.models import Sum
+from django.db.models import Count, Sum
 from django.http import HttpResponse
-from django.db.models import Count
+from django.shortcuts import get_object_or_404
 from django.utils.text import slugify
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters, status, viewsets
+from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+
 from .filters import RecipeFilter
+from .models import (Favorite, Follow, Ingredient, IngredientInRecipe, Recipe,
+                     ShoppingCart, Tag)
+from .pagination import UserPagination
+from .permission import RecipePermission
+from .serializers import (AvatarSerializer, ChangeUserPasswordSerializer,
+                          FavoriteSerializer, IngredientSerializer,
+                          RecipeCreateSerializer, RecipeReadSerializer,
+                          RecipeSubscribeSerializer, ShoppingCartSerializer,
+                          SubscribeSerializer, TagSerializer,
+                          UserCreateSerializer, UserListSerializer)
+
 User = get_user_model()
 
 
