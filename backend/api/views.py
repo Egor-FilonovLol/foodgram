@@ -7,30 +7,17 @@ from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from .permission import RecipePermission
+
 from .filters import RecipeFilter
+from .models import (Favorite, Follow, Ingredient, IngredientInRecipe, Recipe,
+                     ShoppingCart, Tag)
 from .pagination import UserPagination
-from .models import (
-    Tag,
-    Ingredient,
-    IngredientInRecipe,
-    Follow,
-    Recipe,
-    Favorite,
-    ShoppingCart,
-)
-from .serializers import (
-    RecipeSubscribeSerializer,
-    RecipeReadSerializer,
-    RecipeCreateSerializer,
-    UserListSerializer,
-    SubscribeSerializer,
-    TagSerializer,
-    IngredientSerializer,
-    UserCreateSerializer,
-    ChangeUserPasswordSerializer,
-    AvatarSerializer,
-)
+from .permission import RecipePermission
+from .serializers import (AvatarSerializer, ChangeUserPasswordSerializer,
+                          IngredientSerializer, RecipeCreateSerializer,
+                          RecipeReadSerializer, RecipeSubscribeSerializer,
+                          SubscribeSerializer, TagSerializer,
+                          UserCreateSerializer, UserListSerializer)
 
 User = get_user_model()
 
