@@ -17,7 +17,7 @@ DEBUG = False
 ALLOWED_HOSTS = ["*"]
 
 
-AUTH_USER_MODEL = "foodgramm.User"
+AUTH_USER_MODEL = "users.User"
 
 INSTALLED_APPS = [
     "django.contrib.admin",
