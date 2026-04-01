@@ -7,21 +7,21 @@ from .models import Ingredient, Recipe, Tag
 class IngredientFilter(FilterSet):
     """Поиск по названию ингредиента"""
 
-    name = rest_framework.CharFilter(lookup_expr='istartswith')
+    name = rest_framework.CharFilter(lookup_expr="istartswith")
 
     class Meta:
         model = Ingredient
-        fields = ('name',)
+        fields = ("name",)
 
 
 class RecipeFilter(rest_framework.FilterSet):
     tags = rest_framework.ModelMultipleChoiceFilter(
-        field_name='tags__slug',
+        field_name="tags__slug",
         queryset=Tag.objects.all(),
-        to_field_name='slug'
+        to_field_name="slug",
     )
-    author = rest_framework.NumberFilter(field_name='author__id')
+    author = rest_framework.NumberFilter(field_name="author__id")
 
     class Meta:
         model = Recipe
-        fields = ['author', 'tags']
+        fields = ["author", "tags"]
