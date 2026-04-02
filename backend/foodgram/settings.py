@@ -14,8 +14,9 @@ if not SECRET_KEY:
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["checkfoodgram.ddns.net",
-                 'localhost',
+ALLOWED_HOSTS = [
+    "checkfoodgram.ddns.net",
+    "localhost",
 ]
 
 
