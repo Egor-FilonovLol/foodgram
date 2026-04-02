@@ -108,8 +108,8 @@ DJOSER = {
     "LOGIN_FIELD": "email",
     "TOKEN_MODEL": "rest_framework.authtoken.models.Token",
     "SERIALIZERS": {
-        "user_create": "foodgramm.serializers.UserCreateSerializer",
-        "current_user": "foodgramm.serializers.UserListSerializer",
+        "user_create": "foodgram.serializers.UserCreateSerializer",
+        "current_user": "foodgrmm.serializers.UserListSerializer",
     },
 }
 
