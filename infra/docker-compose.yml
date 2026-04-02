@@ -2,41 +2,29 @@ volumes:
   pg_data:
   static:
   media:
+  frontend_build:
 
 services:
-  db:
-    image: postgres:13
-    restart: always
-    env_file: .env
-    volumes:
-      - pg_data:/var/lib/postgresql/data
-
-  backend:
-    image: s418963/foodgram_backend:latest
-    env_file: .env
-    depends_on:
-      - db
-    restart: always
-    volumes:
-      - static:/app/static
-      - media:/app/media
 
   frontend:
     image: s418963/foodgram_frontend:latest
     depends_on:
-      - backend  
-    command: cp -r /app/build/. /static/
+      - backend
+    command: sh -c "cp -r /app/build/. /frontend_build/
     volumes:
-      - static:/static
+      - frontend_build:/frontend_build
+    restart: "no"
+
   nginx:
     image: nginx:1.25.4-alpine
     ports:
       - "8080:80"
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - static:/usr/share/nginx/html
+      - frontend_build:/usr/share/nginx/html
+      - static:/app/static
       - media:/app/media
-      - ../docs:/usr/share/nginx/html/api/docs
+      - ../docs:/usr/share/nginx/docs
     depends_on:
       - backend
       - frontend
