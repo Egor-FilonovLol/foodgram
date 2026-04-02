@@ -9,29 +9,15 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .filters import RecipeFilter
-from .models import (
-    Favorite,
-    Follow,
-    Ingredient,
-    IngredientInRecipe,
-    Recipe,
-    ShoppingCart,
-    Tag,
-)
+from .models import (Favorite, Follow, Ingredient, IngredientInRecipe, Recipe,
+                     ShoppingCart, Tag)
 from .pagination import UserPagination
 from .permission import RecipePermission
-from .serializers import (
-    AvatarSerializer,
-    ChangeUserPasswordSerializer,
-    IngredientSerializer,
-    RecipeCreateSerializer,
-    RecipeReadSerializer,
-    RecipeSubscribeSerializer,
-    SubscribeSerializer,
-    TagSerializer,
-    UserCreateSerializer,
-    UserListSerializer,
-)
+from .serializers import (AvatarSerializer, ChangeUserPasswordSerializer,
+                          IngredientSerializer, RecipeCreateSerializer,
+                          RecipeReadSerializer, RecipeSubscribeSerializer,
+                          SubscribeSerializer, TagSerializer,
+                          UserCreateSerializer, UserListSerializer)
 
 User = get_user_model()
 
