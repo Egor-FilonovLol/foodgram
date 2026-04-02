@@ -14,7 +14,9 @@ if not SECRET_KEY:
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["checkfoodgram.ddns.net",
+                 'localhost',
+                ]
 
 
 AUTH_USER_MODEL = "users.User"
@@ -70,7 +72,7 @@ DATABASES = {
         "NAME": os.getenv("POSTGRES_DB", "django"),
         "USER": os.getenv("POSTGRES_USER", "django"),
         "PASSWORD": os.getenv("POSTGRES_PASSWORD", ""),
-        "HOST": os.getenv("DB_HOST", ""),
+        "HOST": os.getenv("DB_HOST", "db"),
         "PORT": os.getenv("DB_PORT", 5432),
     }
 }
