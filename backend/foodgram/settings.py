@@ -16,7 +16,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["checkfoodgram.ddns.net",
                  'localhost',
-                ]
+]
 
 
 AUTH_USER_MODEL = "users.User"
