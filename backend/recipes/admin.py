@@ -18,10 +18,13 @@ class IngredientAdmin(ModelAdmin):
 
 @register(Recipe)
 class RecipeAdmin(ModelAdmin):
-    list_display = ('id', 'name', 'author', 'cooking_time', 'tags_lisst',)
+    list_display = ('id', 'name', 'author', 'cooking_time', 'tags_list',)
     search_fields = ('name', 'author__name',)
     list_filter = ('tags',)
 
+    def tags_list(self, obj):
+        return ", ".join([tag.name for tag in obj.tags.all()])
+    tags_list.short_description = 'тэги'
     def favorited_count(self, obj):
         return obj.favorited_by.count()
     favorited_count.short_description = 'в избранном'
