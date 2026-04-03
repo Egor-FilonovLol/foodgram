@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "django_filters",
     "api",
     "users",
+    "recipes",
     "rest_framework.authtoken",
     "djoser",
 ]

@@ -9,7 +9,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from .filters import RecipeFilter
-from .models import (
+from .recipes.models import (
     Favorite,
     Follow,
     Ingredient,
