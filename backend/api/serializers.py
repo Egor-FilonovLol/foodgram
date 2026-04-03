@@ -7,7 +7,7 @@ from rest_framework.serializers import ModelSerializer, Serializer
 
 from users.models import User
 
-from .recipes.models import (
+from recipes.models import (
     Favorite,
     Follow,
     Ingredient,
