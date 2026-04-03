@@ -154,7 +154,7 @@ class UserViewset(viewsets.ModelViewSet):
             serializer = UserListSerializer(
                 author, context={"request": request}
             )
-
+            Follow.objects.create(user=user, author=author)
             data = serializer.data
             recipes = author.recipes.all()
             recipes_limit = request.query_params.get("recipes_limit")
