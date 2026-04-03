@@ -7,7 +7,7 @@ from .models import (
 
 @register(Tag)
 class TagAdmin(ModelAdmin):
-    list_display = ('id', 'name', 'color', 'slug',)
+    list_display = ('id', 'name', 'slug',)
 
 
 @register(Ingredient)
@@ -18,7 +18,7 @@ class IngredientAdmin(ModelAdmin):
 
 @register(Recipe)
 class RecipeAdmin(ModelAdmin):
-    list_display = ('id', 'name', 'author', 'cooking_time', 'tags',)
+    list_display = ('id', 'name', 'author', 'cooking_time', 'tags_lisst',)
     search_fields = ('name', 'author__name',)
     list_filter = ('tags',)
 
