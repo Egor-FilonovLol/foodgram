@@ -103,6 +103,7 @@ class IngredientInRecipe(models.Model):
             )
         ]
         ordering = ("-id",)
+
     def __str__(self):
         return f"{self.ingredient.name} и {self.ingredient.measurement_unit}"
 
@@ -130,6 +131,7 @@ class Favorite(models.Model):
             )
         ]
         ordering = ("recipe__name",)
+
     def __str__(self):
         return f"{self.user} и {self.recipe}"
 
@@ -157,6 +159,7 @@ class ShoppingCart(models.Model):
             )
         ]
         ordering = ("-id",)
+
 
 class Follow(models.Model):
     author = models.ForeignKey(
