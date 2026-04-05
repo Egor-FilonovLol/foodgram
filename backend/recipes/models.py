@@ -4,11 +4,14 @@ from django.db import models
 from users.models import User
 from recipes.constants import NAME_SLUG, MAX_LENGTH
 
+
 class Tag(models.Model):
     name = models.CharField(
         max_length=NAME_SLUG, unique=True, verbose_name="название"
     )
-    slug = models.SlugField(max_length=NAME_SLUG, unique=True, verbose_name="Слаг")
+    slug = models.SlugField(max_length=NAME_SLUG,
+                            unique=True,
+                            verbose_name="Слаг")
 
     class Meta:
         verbose_name = "Тег"
@@ -44,7 +47,7 @@ class Ingredient(models.Model):
         ]
 
     def __str__(self):
-        return self.name, self.measurement_unit
+        return f"{self.name} ({self.measurement_unit})"
 
 
 class Recipe(models.Model):
