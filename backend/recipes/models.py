@@ -13,6 +13,7 @@ class Tag(models.Model):
     class Meta:
         verbose_name = "Тег"
         verbose_name_plural = "Теги"
+        ordering = ("name",)
         constraints = (
             (
                 models.UniqueConstraint(
@@ -55,7 +56,7 @@ class Recipe(models.Model):
         verbose_name="изображение рецепта",
         upload_to="recipes/images/",
         blank=True,
-        null=True,
+        default=''
     )
     ingredients = models.ManyToManyField(
         Ingredient,
@@ -101,7 +102,7 @@ class IngredientInRecipe(models.Model):
                 name="unique_ingredients_recipe",
             )
         ]
-
+        ordering = ("-id",)
     def __str__(self):
         return f"{self.ingredient.name} и {self.ingredient.measurement_unit}"
 
@@ -128,7 +129,7 @@ class Favorite(models.Model):
                 fields=("recipe", "user"), name="unique_user_recipe"
             )
         ]
-
+        ordering = ("recipe__name",)
     def __str__(self):
         return f"{self.user} и {self.recipe}"
 
@@ -155,7 +156,7 @@ class ShoppingCart(models.Model):
                 fields=("recipe", "user"), name="unique_shoppingcart"
             )
         ]
-
+        ordering = ("-id",)
 
 class Follow(models.Model):
     author = models.ForeignKey(
@@ -179,3 +180,4 @@ class Follow(models.Model):
                 fields=("user", "author"), name="unique_follow"
             )
         ]
+        ordering = ("-id",)
