@@ -2,13 +2,13 @@ from django.core.validators import MinValueValidator
 from django.db import models
 
 from users.models import User
-
+from recipes.constants import NAME_SLUG, MAX_LENGTH
 
 class Tag(models.Model):
     name = models.CharField(
-        max_length=32, unique=True, verbose_name="название"
+        max_length=NAME_SLUG, unique=True, verbose_name="название"
     )
-    slug = models.SlugField(max_length=32, unique=True, verbose_name="Слаг")
+    slug = models.SlugField(max_length=NAME_SLUG, unique=True, verbose_name="Слаг")
 
     class Meta:
         verbose_name = "Тег"
@@ -27,22 +27,28 @@ class Tag(models.Model):
 
 
 class Ingredient(models.Model):
-    name = models.CharField(max_length=256, verbose_name="Название")
+    name = models.CharField(max_length=MAX_LENGTH, verbose_name="Название")
     measurement_unit = models.CharField(
-        max_length=200, verbose_name="Ед измерения"
+        max_length=MAX_LENGTH, verbose_name="Ед измерения"
     )
 
     class Meta:
         verbose_name = "Ингредиент"
         verbose_name_plural = "Ингредиенты"
         ordering = ("name",)
+        constraints = [
+            models.UniqueConstraint(
+                fields=("name", "measurement_unit"),
+                name="unique_name_measurement_unit",
+            )
+        ]
 
     def __str__(self):
-        return self.name
+        return self.name, self.measurement_unit
 
 
 class Recipe(models.Model):
-    name = models.CharField(max_length=265, verbose_name="название")
+    name = models.CharField(max_length=MAX_LENGTH, verbose_name="название")
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="recipes"
     )
@@ -55,7 +61,6 @@ class Recipe(models.Model):
     image = models.ImageField(
         verbose_name="изображение рецепта",
         upload_to="recipes/images/",
-        blank=True,
         default=''
     )
     ingredients = models.ManyToManyField(

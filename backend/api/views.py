@@ -185,25 +185,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Recipe.objects.all()
-        is_favorited = self.request.query_params.get("is_favorited")
-        is_in_shopping_cart = self.request.query_params.get(
-            "is_in_shopping_cart"
-        )
         queryset = self.filter_queryset(queryset)
-        if is_favorited == "1":
-            if self.request.user.is_authenticated:
-                queryset = queryset.filter(
-                    favorited_by__user=self.request.user
-                )
-            else:
-                return Recipe.objects.none()
-        if is_in_shopping_cart == "1":
-            if self.request.user.is_authenticated:
-                queryset = queryset.filter(
-                    shopping_recipe__user=self.request.user
-                )
-            else:
-                return Recipe.objects.none()
         queryset = queryset.distinct()
         queryset = queryset.annotate(
             favorites_count=Count("favorited_by", distinct=True)
@@ -211,7 +193,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         queryset = queryset.select_related("author").prefetch_related(
             "tags", "ingredient_list__ingredient"
         )
-        queryset = queryset.order_by("-id")
         return queryset
 
     def get_serializer_class(self):
