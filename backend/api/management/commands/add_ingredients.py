@@ -10,11 +10,14 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         path = os.path.join(settings.BASE_DIR, 'data', 'ingredients.csv')
+        ingredients_to_create = []
         with open(path, encoding='utf-8') as f:
             reader = csv.reader(f)
-            ingredients = [
-                Ingredient(name=row[0], measurement_unit=row[1])
-                for row in reader
-            ]
-            Ingredient.objects.bulk_create(ingredients, ignore_conflicts=True)
+            for row in reader:
+                if len(row) < 2:
+                    continue
+                ingredients_to_create.append(
+                    Ingredient(name=row[0].strip(), measurement_unit=row[1].strip())
+                )
+        Ingredient.objects.bulk_create(ingredients_to_create, ignore_conflicts=True)
         self.stdout.write(self.style.SUCCESS('готово! ингредиенты загружены.'))
