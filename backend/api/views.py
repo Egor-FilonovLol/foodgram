@@ -50,13 +50,6 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = IngredientFilter
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        name = self.request.query_params.get("name")
-        if name:
-            queryset = queryset.filter(name__istartswith=name)
-        return queryset
-
 
 class UserViewset(viewsets.ModelViewSet):
     queryset = User.objects.all()
