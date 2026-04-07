@@ -1,5 +1,5 @@
+import os
 import csv
-from pathlib import Path
 from django.core.management.base import BaseCommand
 from django.conf import settings
 from recipes.models import Ingredient
@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = 'Загрузка ингредиентов из CSV'
 
     def handle(self, *args, **kwargs):
-        path = Path(settings.BASE_DIR).parent / 'data' / 'ingredients.csv'
+        path = os.path.join(os.path.dirname(settings.BASE_DIR), 'data', 'ingredients.csv')
         with open(path, encoding='utf-8') as f:
             reader = csv.reader(f)
             ingredients = [
