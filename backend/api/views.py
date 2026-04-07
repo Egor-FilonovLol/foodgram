@@ -32,7 +32,6 @@ from .serializers import (
     UserCreateSerializer,
     UserListSerializer,
 )
-from rest_framework.viewsets import ReadOnlyModelViewSet
 
 User = get_user_model()
 
@@ -43,7 +42,7 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (AllowAny,)
 
 
-class IngredientViewSet(ReadOnlyModelViewSet):
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     permission_classes = (AllowAny,)
