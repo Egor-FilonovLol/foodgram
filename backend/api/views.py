@@ -42,14 +42,14 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (AllowAny,)
 
 
-class IngredientViewSet(viewsets.ReadOnlyModelViewSet): 
+class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     filter_backends = [filters.SearchFilter]
     permission_classes = (AllowAny,)
     search_fields = ("name",)
- 
-    def get_queryset(self): 
+
+    def get_queryset(self):
         queryset = super().get_queryset()
         name = self.request.query_params.get("name")
         if name:
