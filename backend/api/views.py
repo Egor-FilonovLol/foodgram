@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from .filters import RecipeFilter
+from .filters import RecipeFilter, IngredientFilter
 from recipes.models import (
     Favorite,
     Follow,
@@ -48,6 +48,7 @@ class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     filter_backends = [filters.SearchFilter]
     permission_classes = (AllowAny,)
     search_fields = ("name",)
+    filterset_class = IngredientFilter
 
     def get_queryset(self):
         queryset = super().get_queryset()
