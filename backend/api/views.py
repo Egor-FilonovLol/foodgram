@@ -195,8 +195,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeCreateSerializer
         return RecipeReadSerializer
 
-    # ... остальные action методы без изменений ...
-
     @action(methods=["get"], detail=True, url_path="get-link")
     def get_short_link(self, request, pk=None):
         recipe = get_object_or_404(Recipe, id=pk)
