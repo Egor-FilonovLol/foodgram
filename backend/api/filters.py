@@ -5,7 +5,8 @@ from recipes.models import Ingredient, Recipe, Tag
 
 
 class IngredientFilter(FilterSet):
-    name = rest_framework.CharFilter(field_name="name", lookup_expr="istartswith")
+    name = rest_framework.CharFilter(field_name="name",
+                                     lookup_expr="istartswith")
 
     class Meta:
         model = Ingredient

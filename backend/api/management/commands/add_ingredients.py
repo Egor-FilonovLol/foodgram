@@ -17,7 +17,9 @@ class Command(BaseCommand):
                 if len(row) < 2:
                     continue
                 ingredients_to_create.append(
-                    Ingredient(name=row[0].strip(), measurement_unit=row[1].strip())
+                    Ingredient(name=row[0].strip(),
+                               measurement_unit=row[1].strip())
                 )
-        Ingredient.objects.bulk_create(ingredients_to_create, ignore_conflicts=True)
+        Ingredient.objects.bulk_create(ingredients_to_create,
+                                       ignore_conflicts=True)
         self.stdout.write(self.style.SUCCESS('готово! ингредиенты загружены.'))
