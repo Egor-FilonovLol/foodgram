@@ -9,7 +9,7 @@ class Command(BaseCommand):
     help = 'Загрузка ингредиентов из CSV'
 
     def handle(self, *args, **kwargs):
-        path = os.path.join(os.path.dirname(settings.BASE_DIR), 'data', 'ingredients.csv')
+        path = os.path.join(settings.BASE_DIR, 'data', 'ingredients.csv')
         with open(path, encoding='utf-8') as f:
             reader = csv.reader(f)
             ingredients = [

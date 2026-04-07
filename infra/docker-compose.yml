@@ -25,6 +25,7 @@ services:
     volumes:
       - static_dir:/app/static/
       - media_dir:/app/media/
+      - ./data:/app/data 
     env_file:
       - ../.env
 
