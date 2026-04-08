@@ -5,8 +5,11 @@ from django_filters import rest_framework
 from recipes.models import Recipe, Tag, Ingredient
 
 
-class IngredientFilter(FilterSet):
-    name = django_filters.CharFilter(field_name="name", lookup_expr="istartswith")
+class IngredientFilter(django_filters.FilterSet):
+    name = django_filters.CharFilter(
+        field_name="name",
+        lookup_expr="istartswith"
+    )
 
     class Meta:
         model = Ingredient
