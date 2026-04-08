@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from .filters import RecipeFilter
+from .filters import RecipeFilter, IngredientFilter
 from recipes.models import (
     Favorite,
     Follow,
@@ -45,16 +45,10 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
 class IngredientViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    filter_backends = [filters.SearchFilter]
     permission_classes = (AllowAny,)
-    search_fields = ("name",)
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        name = self.request.query_params.get("name")
-        if name:
-            queryset = queryset.filter(name__istartswith=name)
-        return queryset
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = IngredientFilter
+    pagination_class = None
 
 
 class UserViewset(viewsets.ModelViewSet):
