@@ -180,6 +180,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Recipe.objects.all()
         queryset = self.filter_queryset(queryset)
+        queryset = queryset.order_by("-created")
         queryset = queryset.distinct()
         queryset = queryset.annotate(
             favorites_count=Count("favorited_by", distinct=True)

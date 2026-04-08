@@ -17,13 +17,6 @@ class Tag(models.Model):
         verbose_name = "Тег"
         verbose_name_plural = "Теги"
         ordering = ("name",)
-        constraints = (
-            (
-                models.UniqueConstraint(
-                    fields=("name", "slug"), name="unique_tag_name"
-                )
-            ),
-        )
 
     def __str__(self):
         return self.name
@@ -110,7 +103,7 @@ class IngredientInRecipe(models.Model):
                 name="unique_ingredients_recipe",
             )
         ]
-        ordering = ("-id",)
+        ordering = ("ingredient__name",)
 
     def __str__(self):
         return f"{self.ingredient.name} и {self.ingredient.measurement_unit}"
@@ -166,7 +159,7 @@ class ShoppingCart(models.Model):
                 fields=("recipe", "user"), name="unique_shoppingcart"
             )
         ]
-        ordering = ("-id",)
+        ordering = ("recipe__name",)
 
 
 class Follow(models.Model):
@@ -191,4 +184,4 @@ class Follow(models.Model):
                 fields=("user", "author"), name="unique_follow"
             )
         ]
-        ordering = ("-id",)
+        ordering = ("author__username",)
